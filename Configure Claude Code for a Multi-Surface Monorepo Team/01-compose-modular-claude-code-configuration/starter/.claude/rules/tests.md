@@ -1,18 +1,21 @@
 ---
-description: TODO write a one-line description of these rules
+description: Conventions for co-located TypeScript test files
 paths:
-  # TODO: add glob(s) that activate this rule for co-located test files anywhere in
-  # the tree. Tests are co-located: Foo.tsx lives next to Foo.test.tsx — so the glob
-  # needs to cross-cut both the components tree and the API tree.
-  - "TODO/**/*"
+  - "**/*.test.tsx"
+  - "**/*.test.ts"
 ---
 
 # Test file rules
 
-<!--
-TODO: Write at least one concrete, non-trivial convention for editing co-located
-      test files (*.test.ts / *.test.tsx). Think about what should layer ON TOP of
-      the React or API rules when the file under test sits in those directories.
-      Examples: assertion-style enforcement, test-data-builder usage, forbidden
-      patterns (snapshots, setTimeout, DB mocking).
--->
+- Use explicit assertions for behavior and outcomes.
+- Do not add snapshot-only tests for new functionality.
+- Keep test data deterministic and easy to understand.
+- Avoid real database calls in unit tests.
+- Avoid real network requests in unit tests.
+- Do not use arbitrary `setTimeout` delays to synchronize tests.
+- Prefer focused test cases that verify one behavior at a time.
+- Reuse established test-data builders when they exist.
+- Keep tests co-located with the source file they exercise.
+- Test both successful behavior and relevant error behavior.
+- Preserve the existing assertion style when modifying an established test suite.
+- Avoid mocking internal implementation details when testing observable behavior.
