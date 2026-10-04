@@ -64,18 +64,24 @@ def run(
     turn = 0
     total_input = 0
     total_output = 0
+    terminal_called = False
 
     while True:
         turn += 1
         budget.check()
         t0 = time.monotonic()
-        response = client.messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            system=system,
-            tools=tools,
-            messages=working_messages,
-        )
+        create_kwargs = {
+            "model": model,
+            "max_tokens": max_tokens,
+            "system": system,
+            "tools": tools,
+            "messages": working_messages,
+        }
+
+        if turn > 1 and not terminal_called:
+            create_kwargs["tool_choice"] = {"type": "any"}
+
+        response = client.messages.create(**create_kwargs)
         latency_ms = (time.monotonic() - t0) * 1000.0
 
         input_tokens = int(response.usage.input_tokens)
@@ -116,6 +122,8 @@ def run(
             for block in response.content:
                 if getattr(block, "type", None) != "tool_use":
                     continue
+                if block.name in {"route_to_adjuster", "escalate_to_human"}:
+                    terminal_called = True
                 result_content = tool_executor(block.name, dict(block.input))
                 tool_results.append(
                     {
